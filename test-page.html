@@ -1,0 +1,233 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+	<div class="container">
+		<ul>
+		<li><a href="#">Home</a></li>
+		<li><a href="#/page1">Page 1</a></li>
+		<li><a href="#/page2">Page 2</a></li>
+		<li><a href="#/page3">Page 3</a></li>
+		</ul>
+		<div id="view"></div>
+
+		<div id="login-form"></div>
+	</div>
+
+	<template id="template3">
+	<form>
+	  <div class="form-group">
+	    <label for="exampleInputEmail1">{{email}}</label>
+	    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+	    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+	  </div>
+	  <div class="form-group">
+	    <label for="exampleInputPassword1">{{password}}</label>
+	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+	  </div>
+	  <div class="form-group form-check">
+	    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+	    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+	  </div>
+	  <button type="submit" class="btn btn-primary" onclick="loginForm();">Submit</button>
+	</form>
+	</template>
+
+	<template id="home">
+	  <h1>Title here for HOMEPAGE</h1>
+	</template>
+
+	<template id="template1">
+	  <h1>Page 1:</h1>
+	  <p>dfdfdfd</p>
+	</template>
+
+  <template id="template2">
+    <h1>Page 2: {{heading}}</h1>
+    <p>Lorem ipsum...</p>
+  </template>
+
+  <script type="text/javascript">
+
+function loginForm(){
+	alert("loginForm");
+}
+
+  	var emailText = 'Email address';
+var passText = 'Email address';
+
+var playbookApp = (function() {
+  var app = {};
+  var pages = {};
+  var commons = {};
+
+  pages.homepage = function(){
+  	var template = document.getElementById("template-login-form");
+  	var templateHtml = template.innerHTML;
+  	var listHtml = "";
+
+  	listHtml = templateHtml
+  	.replace(/{{label-email}}/g, emailText)
+  	.replace(/{{label-password}}/g, passText);
+  	
+  	document.getElementById("login-form").innerHTML = listHtml;
+
+  	 /*var html = [];
+  	 html.push('<div id="header">');
+  	 return html.join("");
+  	 */
+  }
+
+  // Export the app object.
+  return pages;
+}());
+
+ (function () {
+
+var cache = {};
+   
+  this.tmpl = function tmpl(str, data) {
+    // Figure out if we're getting a template, or if we need to
+    // load the template - and be sure to cache the result.
+    var fn = !/\W/.test(str) ?
+      cache[str] = cache[str] ||
+        tmpl(document.getElementById(str).innerHTML) :
+       
+      // Generate a reusable function that will serve as a template
+      // generator (and which will be cached).
+      new Function("obj",
+        "var p=[],print=function(){p.push.apply(p,arguments);};" +
+         
+        // Introduce the data as local variables using with(){}
+        "with(obj){p.push('" +
+         
+        // Convert the template into pure JavaScript
+        str
+          .replace(/[\r\t\n]/g, " ")
+          .split("{{").join("\t")
+          .replace(/((^|}})[^\t]*)'/g, "$1\r")
+          .replace(/\t(.*?)}}/g, "',$1,'")
+          .split("\t").join("');")
+          .split("}}").join("p.push('")
+          .split("\r").join("\\'")
+      + "');}return p.join('');");
+     
+    // Provide some basic currying to the user
+    return data ? fn( data ) : fn;
+  };
+
+      // A hash to store our routes:
+      var routes = {};
+      // An array of the current route's events:
+      var events = [];
+      // The element where the routes are rendered:
+      var el = null;
+      // Context functions shared between all controllers:
+      var ctx = {
+        on: function (selector, evt, handler) {
+          events.push([selector, evt, handler]);
+        },
+        refresh: function (listeners) {
+          listeners.forEach(function (fn) { fn(); });
+        }
+      };
+      // Defines a route:
+      function route (path, templateId, controller) {
+        if (typeof templateId === 'function') {
+          controller = templateId;
+          templateId = null;
+        }
+        var listeners = [];
+        Object.defineProperty(controller.prototype, '$on', {value: ctx.on});
+        Object.defineProperty(controller.prototype, '$refresh', {value: ctx.refresh.bind(undefined, listeners)});
+        routes[path] = {templateId: templateId, controller: controller, onRefresh: listeners.push.bind(listeners)};
+      }
+      function forEachEventElement(fnName) {
+        for (var i = 0, len = events.length; i < len; i++) {
+          var els = el.querySelectorAll(events[i][0]);
+          for (var j = 0, elsLen = els.length; j < elsLen; j++) {
+            els[j][fnName].apply(els[j], events[i].slice(1));
+          }
+        }
+      }
+      function addEventListeners() {
+        forEachEventElement('addEventListener');
+      }
+      function removeEventListeners() {
+        forEachEventElement('removeEventListener');
+      }
+      function router () {
+        // Lazy load view element:
+        el = el || document.getElementById('view');
+        // Remove current event listeners:
+        removeEventListeners();
+        // Clear events, to prepare for next render:
+        events = [];
+        // Current route url (getting rid of '#' in hash as well):
+        var url = location.hash.slice(1) || '/';
+        // Get route by url or fallback if it does not exist:
+        var route = routes[url] || routes['*'];
+        // Do we have a controller:
+        if (route && route.controller) {
+          var ctrl = new route.controller();
+          if (!el || !route.templateId) {
+            // If there's nothing to render, abort:
+            return;
+          }
+          // Listen on route refreshes:
+          route.onRefresh(function () {
+            removeEventListeners();
+            // Render route template with John Resig's template engine:
+            el.innerHTML = tmpl(route.templateId, ctrl);
+            addEventListeners();
+          });
+          // Trigger the first refresh:
+          ctrl.$refresh();
+        }
+      }
+      // Listen on hash change:
+      this.addEventListener('hashchange', router);
+      // Listen on page load:
+      this.addEventListener('load', router);
+      // Expose the route register function:
+      this.route = route;
+    })();
+
+    route('/', 'home', function () {});
+
+    route('/page1', 'template1', function () {
+      this.greeting = 'Hello world!';
+      this.moreText = 'Bacon ipsum...';
+      this.counter = 0;
+      this.$on('.my-button', 'click', function () {
+        this.counter += 1;
+        this.$refresh();
+      }.bind(this));
+    });
+    route('/page2', 'template2', function () {
+      this.heading = 'I\'m page two!';
+    });
+
+    route('/page3', 'template3', function () {
+      this.email = 'User';
+      this.password = 'Pass';
+    });
+    
+
+    route('*', 'error404', function () {});
+  </script>
+    <script type="text/javascript">
+    	window.onload = function() {
+		  //App Code goes here.
+		  //playbookApp.homepage();
+		};
+    </script>
+  </body>
+</html>
