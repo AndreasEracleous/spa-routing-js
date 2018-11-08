@@ -1,0 +1,1 @@
+var contactPage = `<h1>Title here for CONTACT PAGE</h1>`

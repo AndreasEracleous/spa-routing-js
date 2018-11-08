@@ -1,9 +1,3 @@
-var homePage = `
-	<h1>Title here for HOMEPAGE</h1>
-`;
-
-var contactPage = `<h1>Title here for CONTACT PAGE</h1>`
-
 routes = {
   '/': homePage,
   '/index.html': homePage,
